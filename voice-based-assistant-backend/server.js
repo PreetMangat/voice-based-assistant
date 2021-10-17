@@ -2,6 +2,8 @@
 let express = require("express")
 let db = require("./database.js")
 let md5 = require("md5")
+let auth = require("./authentication.js")
+const { authenticateJWT } = require("./authentication.js")
 
 let app = express()
 
@@ -96,11 +98,53 @@ app.post("/api/user/", (req, res) => {
     });
 })
 
+// log-in a user
+app.post('/api/login', (req, res) => {
+    let errors=[]
+    if (!req.body.email_address){
+        errors.push("No email address specified");
+    }
+    if (!req.body.password){
+        errors.push("No password specified");
+    }
+    if (errors.length){
+        res.status(400).json({"error":errors.join(",")});
+        return;
+    }
+    let data = {
+        email_address: req.body.email_address,
+        password: md5(req.body.password),
+    }
+    let sql = 'SELECT * FROM user WHERE email_address = ? AND password = ?'
+
+    let params = [data.email_address, data.password]
+
+    db.get(sql, params, function (err, row) {
+        if (err){
+            res.status(400).json({"error": err.message})
+            return;
+        }
+        if(row){
+            let accessToken = auth.generateToken(row.email_address)
+            res.json({
+                "message": "success",
+                "data": row,
+                "accessToken": accessToken
+            })
+        }
+        else
+        {
+            res.status(404).json({"error": "user not found, email or password are incorrect"})
+            return;
+        }
+    });
+});
+
 // PATCH
 
 // update a user
 // TODO: change from email address as a parameter, this is a security violation.
-app.patch("/api/user/:email_address", (req, res) => {
+app.patch("/api/user/:email_address", authenticateJWT, (req, res) => {
     var data = {
         name: req.body.name,
         email_address: req.body.email_address,
