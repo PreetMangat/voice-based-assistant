@@ -1,7 +1,7 @@
 import React from 'react'; 
 import Registration from './components/Registration'; 
 
-const Register= () => {
+const Register = () => {
     return (
         <div>
             <Registration/>

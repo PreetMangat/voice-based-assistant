@@ -3,9 +3,13 @@ let express = require("express")
 let db = require("./database.js")
 let md5 = require("md5")
 let auth = require("./authentication.js")
+let cors = require("cors")
 
 let app = express()
 
+app.use(cors({
+    origin: '*'
+}));
 app.use(express.urlencoded({extended: false}));
 app.use(express.json())
 
@@ -97,7 +101,8 @@ app.post("/api/user/", (req, res) => {
 })
 
 // log-in a user
-app.post('/api/login', (req, res) => {
+app.post('/api/login/', (req, res) => {
+    console.log(req.body)
     let errors=[]
     if (!req.body.email_address){
         errors.push("No email address specified");

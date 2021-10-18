@@ -1,7 +1,50 @@
-import React from 'react'
+import axios from 'axios'
+import { React, useState } from 'react'
 import {Form, Button, Container} from 'react-bootstrap'; 
 import {Link} from 'react-router-dom'; 
+import { useHistory } from "react-router-dom";
+
+const URL = "http://localhost:8000/api/login/"
+
 const LoginForm = () => {
+
+    let history = useHistory()
+
+    const initValues = {
+        email: "",
+        password: "",
+    }
+
+    const [values, setValues] = useState(initValues)
+
+    const onChange = (event) => {
+        const { name, value } = event.target;
+        setValues({
+            ...values,
+            [name]: value,
+        });
+    };
+
+    const login = (event) => {
+        event.preventDefault()
+
+        let data = {
+                email_address: values.email,
+                password: values.password,
+        }
+
+        axios.post(URL, data)
+            .then((res) => {
+                if(res.status === 200) {
+                    console.log(res)
+                    history.push("/main")
+                }
+            })
+            .catch((err) => {
+                window.alert(err)
+            })
+    }
+
     return (
         <div>
             <br/>
@@ -10,12 +53,12 @@ const LoginForm = () => {
             <Container >
             <Form style={{width:"80%", marginLeft:"10%", marginTop:"10%"}}>
                 <Form.Group>
-                    <Form.Control type="email" placeholder="Email"></Form.Control>
+                    <Form.Control name="email" type="email" placeholder="Email" onChange={onChange}></Form.Control>
                     <br/>
-                    <Form.Control type="password" placeholder="Password"></Form.Control>
+                    <Form.Control name="password" type="password" placeholder="Password" onChange={onChange}></Form.Control>
                 </Form.Group>
                 <br/>
-                <Button type="submit" style={{width:"100%", marginLeft:"0%"}}>Log in</Button>
+                <Button type="submit" onClick={login} style={{width:"100%", marginLeft:"0%"}}>Log in</Button>
                 <br/> 
                 <br/>
                 <br/>
