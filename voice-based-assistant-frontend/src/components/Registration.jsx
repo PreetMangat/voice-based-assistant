@@ -6,16 +6,16 @@ import { useHistory } from "react-router-dom";
 const URL = "http://localhost:8000/api/user/"
 
 const Registration = () => {
-
-    let history = useHistory()
-
     const initValues = {
+        name: "", 
         email: "",
         password: "",
-        confirm_password: ""
+        confirm_password: "", 
+        address: "", 
+        phone_number: ""
     }
-
     const [values, setValues] = useState(initValues)
+    let history = useHistory()
 
     const onChange = (event) => {
         const { name, value } = event.target;
@@ -32,11 +32,14 @@ const Registration = () => {
             window.alert("Error, password and confirm password must match")
             return
         }
-        
+
         let data = {
+                name: values.name, 
                 email_address: values.email,
                 password: values.password,
-                name: values.confirm_password
+                name: values.confirm_password,
+                address: values.address, 
+                phone_number: values.phone_number
         }
 
         axios.post(URL, data)
@@ -59,7 +62,13 @@ const Registration = () => {
         <Container >
             <Form style={{width:"80%", marginLeft:"10%", marginTop:"10%"}}>
                 <Form.Group>
+                    <Form.Control name="name" placeholder="Name" onChange={onChange}></Form.Control>
+                    <br/>
                     <Form.Control name="email" type="email" placeholder="Email" onChange={onChange}></Form.Control>
+                    <br/>
+                    <Form.Control name="address"  placeholder="Address" onChange={onChange}></Form.Control>
+                    <br/>
+                    <Form.Control name="phone_number" placeholder="Phone Number" onChange={onChange}></Form.Control>
                     <br/>
                     <Form.Control name="password" type="password" placeholder="Password" onChange={onChange}></Form.Control>
                     <br/>

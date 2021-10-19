@@ -30,10 +30,10 @@ app.get("/", (req, res) => {
 
 // GET
 
-// get user by email
-app.get("/api/user/:email_address", (req, res) => {
+// get specific user that's logged in
+app.get("/api/user/", auth.authenticateJWT, (req, res) => {
     let sql = "SELECT * FROM user WHERE email_address = ?"
-    let params = [req.params.email_address]
+    let params = [req.authenticated_user.email_address]
     db.get(sql, params, (err, row) => {
         if (err) {
           res.status(400).json({error:err.message});
@@ -42,22 +42,6 @@ app.get("/api/user/:email_address", (req, res) => {
         res.json({
             message:"success",
             data:row
-        })
-      });
-});
-
-// get all users
-app.get("/api/users", (req, res) => {
-    let sql = "SELECT * FROM user"
-    let params = []
-    db.all(sql, params, (err, rows) => {
-        if (err) {
-          res.status(400).json({error:err.message});
-          return;
-        }
-        res.json({
-            message:"success",
-            data:rows
         })
       });
 });
@@ -84,9 +68,11 @@ app.post("/api/user/", (req, res) => {
         name: req.body.name,
         email_address: req.body.email_address,
         password: md5(req.body.password),
+        address: req.body.address, 
+        phone_number: req.body.phone_number
     }
-    let sql ='INSERT INTO user (name, email_address, password) VALUES (?,?,?)'
-    let params = [data.name, data.email_address, data.password]
+    let sql ='INSERT INTO user (name, email_address, password, address, phone_number) VALUES (?,?,?,?,?)'
+    let params = [data.name, data.email_address, data.password, data.address, data.phone_number]
     db.run(sql, params, function (err) {
         if (err){
             res.status(400).json({error: err.message})
@@ -102,7 +88,6 @@ app.post("/api/user/", (req, res) => {
 
 // log-in a user
 app.post('/api/login/', (req, res) => {
-    console.log(req.body)
     let errors=[]
     if (!req.body.email_address){
         errors.push("No email address specified");
@@ -132,7 +117,7 @@ app.post('/api/login/', (req, res) => {
             res.json({
                 message: "success",
                 data: row,
-                accessToken: accessToken
+                accessToken: "Bearer " + accessToken
             })
         }
         else
@@ -147,11 +132,14 @@ app.post('/api/login/', (req, res) => {
 
 // update a user
 app.patch("/api/user/", auth.authenticateJWT, (req, res) => {
+    console.log(req.body)
     var data = {
         name: req.body.name,
         current_email_address: req.body.current_email_address,
         new_email_address: req.body.new_email_address,
-        password : req.body.password ? md5(req.body.password) : null
+        password : req.body.password ? md5(req.body.password) : null,
+        phone_number: req.body.phone_number, 
+        address: req.body.phone_number
     }
     if(!(data.current_email_address === req.authenticated_user.email_address)){
         res.sendStatus(401)
@@ -159,12 +147,20 @@ app.patch("/api/user/", auth.authenticateJWT, (req, res) => {
     }
     let sql = `UPDATE user set 
                 name = COALESCE(?,name), 
+                phone_number = COALESCE(?,phone_number),
+                address = COALESCE(?,address),
                 email_address = COALESCE(?,email_address), 
                 password = COALESCE(?,password) 
                 WHERE email_address = ?`
-    let params = [data.name, data.new_email_address, data.password, data.current_email_address]
+    let params = [data.name, 
+                  data.phone_number, 
+                  data.address, 
+                  data.new_email_address, 
+                  data.password, 
+                  data.current_email_address]
     db.run(sql, params, function (err) {
             if (err){
+                console.log(err)
                 res.status(400).json({error: res.message})
                 return;
             }

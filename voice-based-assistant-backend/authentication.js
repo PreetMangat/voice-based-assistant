@@ -8,6 +8,8 @@ module.exports = {
     },
 
     authenticateJWT : (req, res, next) => {
+        console.log(req.body)
+        console.log(req.headers)
         const authHeader = req.headers.authorization;
     
         if (authHeader) {

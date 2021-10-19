@@ -7,15 +7,12 @@ import { useHistory } from "react-router-dom";
 const URL = "http://localhost:8000/api/login/"
 
 const LoginForm = () => {
-
-    let history = useHistory()
-
     const initValues = {
         email: "",
         password: "",
     }
-
     const [values, setValues] = useState(initValues)
+    let history = useHistory()
 
     const onChange = (event) => {
         const { name, value } = event.target;
@@ -36,7 +33,7 @@ const LoginForm = () => {
         axios.post(URL, data)
             .then((res) => {
                 if(res.status === 200) {
-                    console.log(res)
+                    localStorage.setItem('jwt_token', res.data.accessToken)
                     history.push("/main")
                 }
             })
