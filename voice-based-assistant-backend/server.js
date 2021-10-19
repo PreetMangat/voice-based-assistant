@@ -132,7 +132,6 @@ app.post('/api/login/', (req, res) => {
 
 // update a user
 app.patch("/api/user/", auth.authenticateJWT, (req, res) => {
-    console.log(req.body)
     var data = {
         name: req.body.name,
         current_email_address: req.body.current_email_address,
