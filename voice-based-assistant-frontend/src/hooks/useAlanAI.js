@@ -45,12 +45,45 @@ export default function useAlanAI() {
         },[alanInstance]); 
 
     const updateName = useCallback(({detail : {field_value}}) => {
-        alanInstance.playText("Sure, I am updating your name in your file.")
+        alanInstance.playText("Sure, give me a moment while I update your name"); 
+
+            let data = {
+                current_email_address: current_email_address,
+                name: field_value
+            }
+
+            axios.patch(URL, data, auth)
+            .then((res) => {
+                if(res.status === 200) {
+                    alanInstance.playText("You're all set! Have a great day!"); 
+                }
+
+            })
+            .catch((err) => {
+                window.alert(err)
+            })
 
     }, [alanInstance]); 
 
-    const updateAddress = useCallback(() => { 
-    alanInstance.playText("Sure, I am updating your address in your file. ")}
+    const updateAddress = useCallback(({detail : {field_value}}) => { 
+        alanInstance.playText("Sure, give me a moment while I update your address"); 
+
+        let data = {
+            current_email_address: current_email_address,
+            address: field_value
+        }
+
+        axios.patch(URL, data, auth)
+        .then((res) => {
+            if(res.status === 200) {
+                alanInstance.playText("You're all set! Have a great day!"); 
+            }
+
+        })
+        .catch((err) => {
+            window.alert(err)
+        })
+    }
     , [alanInstance]); 
 
     useEffect(() => {

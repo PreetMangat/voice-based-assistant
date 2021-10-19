@@ -138,7 +138,7 @@ app.patch("/api/user/", auth.authenticateJWT, (req, res) => {
         new_email_address: req.body.new_email_address,
         password : req.body.password ? md5(req.body.password) : null,
         phone_number: req.body.phone_number, 
-        address: req.body.phone_number
+        address: req.body.address
     }
     if(!(data.current_email_address === req.authenticated_user.email_address)){
         res.sendStatus(401)
